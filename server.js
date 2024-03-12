@@ -13,6 +13,10 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+const cors = require('cors')
+app.use(cors())
+
+
 // Definindo rotas
 app.use('/', routes);
 

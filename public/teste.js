@@ -12,7 +12,7 @@ const data = {
 
 
 
-fetch('http://localhost:3000/meal-planner', {
+fetch('https://nutriapi-bea366ebb4e9.herokuapp.com/meal-planner', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
