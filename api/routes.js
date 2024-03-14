@@ -62,18 +62,17 @@ router.get('/', (req, res) => {
 router.post('/health-stats', (req, res) => {
 	//imperial unit: weight in pounds, height in inches		
 	//metric unit: weight in KG, height in meter
-	const unit = req.body.unit;
+	let {unit, gender, activityLevel, age , weight, height}= req.body;
 	
-	const gender = req.body.gender
-	const activityLevel = req.body.activity
-	const age = parseInt(req.body.age)
-	let weight = parseFloat(req.body.weight);
-	let height = parseFloat(req.body.height);
+	age = parseFloat(age.toFixed(0))
+	weight = parseFloat(weight.toFixed(0));
+	height = parseFloat(height.toFixed(0));
 	
 	// Valida e converte automaticamente as unidades
 	const convertedValues = convertToMetric(unit, weight, height);
 	weight = convertedValues.weight;
 	height = convertedValues.height;	
+	
 	
 	if (!height || !weight || !unit || !gender || !activityLevel || !age) {
 		return res.status(400).json({ error: 'Unit, Gender, Age, Height, Weight, Activity are required' });
@@ -85,8 +84,9 @@ router.post('/health-stats', (req, res) => {
 	const idealWeight = NutritionUtils.idealWeight(gender, height)
 	const BMI = NutritionUtils.calculateBMI(weight, height);
 	const TDEE = NutritionUtils.calculateTDEE(gender, age, weight, height, activityLevel)
+	res.json({idealWeight, BMI, TDEE})
 	
-	res.json({idealWeight, BMI, 'Macronutrients': TDEE});
+	// res.json({idealWeight, BMI, 'Macronutrients': TDEE});
 });
 
 /**

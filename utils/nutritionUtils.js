@@ -5,7 +5,7 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 class NutritionUtils {
     static calculateBMI(weight, height, unit) {
-        let weight_status_by_BMI;
+        let status;
 		let BMI;
 		
 		height = height/100
@@ -13,15 +13,15 @@ class NutritionUtils {
 		BMI = parseFloat((parseFloat(weight)/Math.pow(parseFloat(height),2)).toFixed(1))
 		
 		if(BMI < 18.5){
-			weight_status_by_BMI = 'Underweight'
+			status = 'Underweight'
 		}else if(BMI >= 18.5 && BMI < 25){
-			weight_status_by_BMI = 'Normal Weight'
+			status = 'Normal Weight'
 		}else if(BMI >=25 && BMI < 30){
-			weight_status_by_BMI = 'Overweight'
+			status = 'Overweight'
 		}else if(BMI >=30){
-			weight_status_by_BMI = 'Obese'
+			status = 'Obese'
 		}
-		return {BMI,weight_status_by_BMI};
+		return {BMI,status};
     }
 	
 	
@@ -30,11 +30,11 @@ class NutritionUtils {
 		let totalCalories;
 
 		// Aplicar a fórmula Mifflin-St Jeor
-		switch (gender) {
-			case 'Male':
+		switch (gender.toLowerCase()) {
+			case 'male':
 				bmr = 10 * weight + 6.25 * height - 5 * age + 5;
 				break;
-			case 'Female':
+			case 'female':
 				bmr = 10 * weight + 6.25 * height - 5 * age - 161;
 				break;
 			default:
@@ -42,7 +42,7 @@ class NutritionUtils {
 		}
 
 		// Ajuste para o nível de atividade
-		switch (activityLevel) {
+		switch (activityLevel.toLowerCase()) {
 			case 'sedentary':
 				totalCalories = bmr * 1.2;
 				break;
@@ -68,17 +68,17 @@ class NutritionUtils {
 		
 		const Maintenance ={
 			kcal: maintenanceCal,
-			'Moderate Carb':{
+			Moderate_Carb:{
 				protein: parseFloat((maintenanceCal*.3/4).toFixed(0)),
 				carbs: parseFloat((maintenanceCal*.35/4).toFixed(0)),
 				fats: parseFloat((maintenanceCal*.35/9).toFixed(0)),
 			},
-			'Lower Carb':{
+			Lower_Carb:{
 				protein: parseFloat((maintenanceCal*.4/4).toFixed(0)),
 				carbs: parseFloat((maintenanceCal*.4/4).toFixed(0)),
 				fats: parseFloat((maintenanceCal*.2/9).toFixed(0)),
 			},
-			'Higher Carb':{
+			Higher_Carb:{
 				protein: parseFloat((maintenanceCal*.3/4).toFixed(0)),
 				carbs: parseFloat((maintenanceCal*.5/4).toFixed(0)),
 				fats: parseFloat((maintenanceCal*.2/9).toFixed(0)),
@@ -87,17 +87,17 @@ class NutritionUtils {
 		
 		const Cutting ={
 			kcal: cuttingCal,
-			'Moderate Carb':{
+			Moderate_Carb:{
 				protein: parseFloat((cuttingCal*.3/4).toFixed(0)),
 				carbs: parseFloat((cuttingCal*.35/4).toFixed(0)),
 				fats: parseFloat((cuttingCal*.35/9).toFixed(0)),
 			},
-			'Lower Carb':{
+			Lower_Carb:{
 				protein: parseFloat((cuttingCal*.4/4).toFixed(0)),
 				carbs: parseFloat((cuttingCal*.4/4).toFixed(0)),
 				fats: parseFloat((cuttingCal*.2/9).toFixed(0)),
 			},
-			'Higher Carb':{
+			Higher_Carb:{
 				protein: parseFloat((cuttingCal*.3/4).toFixed(0)),
 				carbs: parseFloat((cuttingCal*.5/4).toFixed(0)),
 				fats: parseFloat((cuttingCal*.2/9).toFixed(0)),
@@ -106,24 +106,24 @@ class NutritionUtils {
 		
 		const Bulking ={
 			kcal: bulkCal,
-			'Moderate Carb':{
+			Moderate_Carb:{
 				protein: parseFloat((bulkCal*.3/4).toFixed(0)),
 				carbs: parseFloat((bulkCal*.35/4).toFixed(0)),
 				fats: parseFloat((bulkCal*.35/9).toFixed(0)),
 			},
-			'Lower Carb':{
+			Lower_Carb:{
 				protein: parseFloat((bulkCal*.4/4).toFixed(0)),
 				carbs: parseFloat((bulkCal*.4/4).toFixed(0)),
 				fats: parseFloat((bulkCal*.2/9).toFixed(0)),
 			},
-			'Higher Carb':{
+			Higher_Carb:{
 				protein: parseFloat((bulkCal*.3/4).toFixed(0)),
 				carbs: parseFloat((bulkCal*.5/4).toFixed(0)),
 				fats: parseFloat((bulkCal*.2/9).toFixed(0)),
 			},
 		}
 		
-		return {'TDEE': totalCalories, Maintenance, Cutting, Bulking}; // Retorna o total de calorias calculado
+		return {Maintenance, Cutting, Bulking}; // Retorna o total de calorias calculado
 	}
 
 	
@@ -136,14 +136,15 @@ class NutritionUtils {
 		let peso_ideal_robinson;
 		let peso_ideal_miller;
 		
-		switch (gender){
-			case 'Male':
+		
+		switch (gender.toLowerCase()){
+			case 'male':
 				peso_ideal_hamwi = 48 + 2.7 * (height_inches - 60);
 				peso_ideal_devine = 50 + 2.3 * (height_inches - 60);
 				peso_ideal_robinson = 52 + 1.9 * (height_inches - 60);
 				peso_ideal_miller = 56.2 + 1.41 * (height_inches - 60);
 				break;
-			case 'Female':
+			case 'female':
 				peso_ideal_hamwi = 45.5 + 2.2 * (height_inches - 60);
 				peso_ideal_devine = 50 + 2.3 * (height_inches - 60);
 				peso_ideal_robinson = 49 + 1.7 * (height_inches - 60);
@@ -156,7 +157,7 @@ class NutritionUtils {
 		const max_weight = (Math.max (peso_ideal_devine, peso_ideal_hamwi, peso_ideal_miller, peso_ideal_robinson)).toFixed(2)
 		const min_weight = (Math.min (peso_ideal_devine, peso_ideal_hamwi, peso_ideal_miller, peso_ideal_robinson)).toFixed(2)
 		
-		return {'Ideal Weight': min_weight +' - '+ max_weight}
+		return {ideal_weight: min_weight +' - '+ max_weight}
 				
 	}
 	
