@@ -160,17 +160,18 @@ class NutritionUtils {
 				
 	}
 	
-	static calculateBF(gender, height, weight, neck, waist, hip) {
-		if ((waist - neck) === 0 || height === 0) {
-			return null; // Se as medidas forem inválidas, retorne null
-		}
-
+	static async calculateBF(gender, height, weight, neck, waist, hip) {
+		
 		const bfFormula = (gender.toLowerCase() === 'male') ?
-			(495) / (1.033 - 0.191 * Math.log10(waist - neck) + 0.155 * Math.log10(height)) - 450 :
-			(495) / (1.296 - 0.350 * Math.log10(hip + waist + neck) + 0.221 * Math.log10(height)) - 450;
+			((495) / (1.033 - 0.191 * Math.log10(waist - neck) + 0.155 * Math.log10(height)) - 450) :
+			((495) / (1.296 - 0.350 * Math.log10(hip + waist + neck) + 0.221 * Math.log10(height)) - 450);
 
 		const bf = parseFloat(bfFormula.toFixed(2));
-
+		
+		//bfMass = bf*weight/100
+		//LeanBM = weight-bfMass
+		const LeanBodyMass = parseFloat((weight-(bf*weight/100)).toFixed(1))
+		
 		const bfRanges = {
 			male: {
 				essentialFat: [null, 6],
@@ -193,7 +194,7 @@ class NutritionUtils {
 		const status = Object.entries(bfRanges[gender.toLowerCase()])
 			.find(([_, range]) => bf >= range[0] && bf < range[1]);
 
-		return { bf, status: status ? status[0] : 'Unknown' };
+		return { bf, LeanBodyMass, status: status ? status[0] : 'Unknown' };
 	}
 	
 
@@ -203,7 +204,7 @@ class NutritionUtils {
 		const appID = process.env.track_appID;
 		
 		const requestData = {
-			query: foodName,
+			query: "100g "+foodName,
 		};
 
 		const apiEndpoint = 'https://trackapi.nutritionix.com/v2/natural/nutrients';

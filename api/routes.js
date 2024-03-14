@@ -110,7 +110,7 @@ router.post('/health-stats', (req, res) => {
  *       '400':
  *         description: Bad request
  */
-router.post('/body-fat-percentage', (req , res) =>{
+router.post('/body-fat-percentage', async (req , res) =>{
 	const gender = req.body.gender;
 	const weight = parseFloat(req.body.weight);
 	const neck = parseFloat(req.body.neck);
@@ -130,9 +130,18 @@ router.post('/body-fat-percentage', (req , res) =>{
 		return res.status(400).json({ error: 'Hip is required' });
 	}
 	
-	const BF = NutritionUtils.calculateBF(gender, height, weight, neck, waist, hip)
+	if ((waist - neck) <= 0 || height <= 100) {
+		return res.status(400).json({error:'Your neck cannot be greater than your waist'})
+	}
+		
+	try{
+		const BF = await NutritionUtils.calculateBF(gender, height, weight, neck, waist, hip)		
+		res.json({BF})
+	}catch(error){
+		console.error('Error calculate your body fat percentage:', error.message);
+		res.status(500).json({ error: error.message }); 		
+	}
 	
-	res.json({BF})
 })
 
 /**
